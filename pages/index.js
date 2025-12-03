@@ -24,7 +24,35 @@ export default function Home() {
         <meta property="og:type" content="product" />
       </Head>
 
-      <h1>Welcome to TabNews Clone by kazluBR</h1>
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%)",
+          padding: "20px",
+          textAlign: "center",
+        }}
+      >
+        <h1
+          style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: "2rem",
+            maxWidth: "700px",
+            lineHeight: "1.4",
+            background: "white",
+            padding: "30px 40px",
+            borderRadius: "20px",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+            color: "#333",
+            border: "2px solid #ffe0e6",
+          }}
+        >
+          Não tem promoção de lava e seca,
+          <br /> mas sempre teremos motivos para comemorar 😚❤️
+        </h1>
+      </div>
     </>
   );
 }
