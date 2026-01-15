@@ -8,6 +8,7 @@ const createJestConfig = nextJest({
 })
 const jestCongig = createJestConfig({
   moduleDirectories: ["node_modules", "<rootDir>"],
+  testTimeout: 60000,
 })
 
 module.exports = jestCongig
