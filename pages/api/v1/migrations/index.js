@@ -1,6 +1,6 @@
 export const runtime = "nodejs"
 
-import { resolve } from "node:path"
+import { join } from "node:path"
 import database from "infra/database"
 
 let migrationRunner
@@ -29,7 +29,7 @@ export default async function migrations(request, response) {
     const defaultMigrationOptions = {
       dbClient: dbClient,
       dryRun: true,
-      dir: resolve("infra", "migrations"),
+      dir: join("infra", "migrations"),
       direction: "up",
       verbose: true,
       migrationsTable: "pgmigrations",
