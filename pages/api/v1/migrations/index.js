@@ -1,6 +1,17 @@
-import migrationRunner from "node-pg-migrate"
-import { join } from "node:path"
+export const runtime = "nodejs"
+
+import { resolve } from "node:path"
 import database from "infra/database"
+
+let migrationRunner
+
+async function getMigrationRunner() {
+  if (!migrationRunner) {
+    const mod = await import("node-pg-migrate")
+    migrationRunner = mod.runner
+  }
+  return migrationRunner
+}
 
 export default async function migrations(request, response) {
   const allowedMethods = ["GET", "POST"]
@@ -12,11 +23,13 @@ export default async function migrations(request, response) {
 
   let dbClient
   try {
+    const migrationRunner = await getMigrationRunner()
+
     dbClient = await database.getNewClient()
     const defaultMigrationOptions = {
       dbClient: dbClient,
       dryRun: true,
-      dir: join("infra", "migrations"),
+      dir: resolve("infra", "migrations"),
       direction: "up",
       verbose: true,
       migrationsTable: "pgmigrations",
