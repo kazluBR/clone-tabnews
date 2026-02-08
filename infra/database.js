@@ -10,7 +10,7 @@ async function query(queryObject) {
     return result
   } catch (error) {
     const serviceErrorObject = new ServiceError({
-      message: "Erro na conexão com Banco ou na Query.",
+      message: "Erro na query ao Banco.",
       cause: error,
     })
     throw serviceErrorObject
@@ -20,17 +20,25 @@ async function query(queryObject) {
 }
 
 async function getNewClient() {
-  const client = new Client({
-    host: process.env.POSTGRES_HOST,
-    port: process.env.POSTGRES_PORT,
-    user: process.env.POSTGRES_USER,
-    database: process.env.POSTGRES_DB,
-    password: process.env.POSTGRES_PASSWORD,
-    ssl: getSSLValues(),
-  })
+  try {
+    const client = new Client({
+      host: process.env.POSTGRES_HOST,
+      port: process.env.POSTGRES_PORT,
+      user: process.env.POSTGRES_USER,
+      database: process.env.POSTGRES_DB,
+      password: process.env.POSTGRES_PASSWORD,
+      ssl: getSSLValues(),
+    })
 
-  await client.connect()
-  return client
+    await client.connect()
+    return client
+  } catch (error) {
+    const serviceErrorObject = new ServiceError({
+      message: "Erro na conexão com Banco.",
+      cause: error,
+    })
+    throw serviceErrorObject
+  }
 }
 
 const database = {
