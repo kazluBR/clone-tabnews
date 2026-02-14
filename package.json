@@ -29,11 +29,12 @@
     "dotenv-expand": "12.0.3",
     "next": "16.1.4",
     "next-connect": "1.0.0",
-    "node-pg-migrate": "8.0.4",
+    "node-pg-migrate": "6.2.2",
     "pg": "8.17.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "swr": "2.4.0"
+    "swr": "2.4.0",
+    "uuid": "11.1.0"
   },
   "devDependencies": {
     "@commitlint/cli": "20.3.1",
