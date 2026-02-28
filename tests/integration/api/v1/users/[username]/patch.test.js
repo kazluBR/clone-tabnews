@@ -1,12 +1,12 @@
 import { version as uuidVersion } from "uuid"
-import orcherstrator from "tests/orcherstrator"
+import orchestrator from "tests/orchestrator"
 import user from "models/user"
 import password from "models/password"
 
 beforeAll(async () => {
-  await orcherstrator.waitForAllServices()
-  await orcherstrator.clearDatabase()
-  await orcherstrator.runPendingMigrations()
+  await orchestrator.waitForAllServices()
+  await orchestrator.clearDatabase()
+  await orchestrator.runPendingMigrations()
 })
 
 describe("Patch /api/v1/users/[username]", () => {
@@ -32,11 +32,11 @@ describe("Patch /api/v1/users/[username]", () => {
     })
 
     test("With duplicated 'username'", async () => {
-      await orcherstrator.createUser({
+      await orchestrator.createUser({
         username: "user1",
       })
 
-      await orcherstrator.createUser({
+      await orchestrator.createUser({
         username: "user2",
       })
 
@@ -63,11 +63,11 @@ describe("Patch /api/v1/users/[username]", () => {
     })
 
     test("With duplicated 'email'", async () => {
-      await orcherstrator.createUser({
+      await orchestrator.createUser({
         email: "email1@curso.dev",
       })
 
-      const createdUser = await orcherstrator.createUser({
+      const createdUser = await orchestrator.createUser({
         email: "email2@curso.dev",
       })
 
@@ -97,7 +97,7 @@ describe("Patch /api/v1/users/[username]", () => {
     })
 
     test("With new 'password'", async () => {
-      const createdUser = await orcherstrator.createUser({
+      const createdUser = await orchestrator.createUser({
         password: "newPassword1",
       })
 
@@ -149,7 +149,7 @@ describe("Patch /api/v1/users/[username]", () => {
     })
 
     test("With unique 'username'", async () => {
-      const createdUser = await orcherstrator.createUser()
+      const createdUser = await orchestrator.createUser()
 
       const response = await fetch(
         `http://localhost:3000/api/v1/users/${createdUser.username}`,
@@ -179,7 +179,7 @@ describe("Patch /api/v1/users/[username]", () => {
     })
 
     test("With unique 'email'", async () => {
-      const createdUser = await orcherstrator.createUser()
+      const createdUser = await orchestrator.createUser()
 
       const response = await fetch(
         `http://localhost:3000/api/v1/users/${createdUser.username}`,
