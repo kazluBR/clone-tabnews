@@ -1,0 +1,138 @@
+import { version as uuidVersion } from "uuid"
+import * as cookie from "cookie"
+import orcherstrator from "tests/orcherstrator"
+import session from "models/session"
+
+beforeAll(async () => {
+  await orcherstrator.waitForAllServices()
+  await orcherstrator.clearDatabase()
+  await orcherstrator.runPendingMigrations()
+})
+
+describe("DELETE /api/v1/sessions", () => {
+  describe("Default user", () => {
+    test("With nonexistent session", async () => {
+      const nonExistentToken =
+        "34399ffacfd0f8f7747ec641b19bfcc3c90c183f37264f8904f2461a3e0bf83e82bd33d767de3d669ed2c2d560a9029c"
+
+      const response = await fetch("http://localhost:3000/api/v1/sessions/", {
+        method: "DELETE",
+        headers: {
+          Cookie: `session_id=${nonExistentToken}`,
+        },
+      })
+
+      expect(response.status).toBe(401)
+
+      const responseBody = await response.json()
+
+      expect(responseBody).toEqual({
+        name: "UnauthorizedError",
+        message: "Usuário não possui sessão ativa.",
+        action: "Verifique se este usuário está logado e tente novamente.",
+        status_code: 401,
+      })
+    })
+
+    test("With expired session", async () => {
+      jest.useFakeTimers({
+        now: new Date(Date.now() - session.EXPIRATION_IN_MILLISECONDS),
+      })
+
+      const createdUser = await orcherstrator.createUser()
+
+      const sessionObject = await orcherstrator.createSession(createdUser.id)
+
+      jest.useRealTimers()
+
+      const response = await fetch("http://localhost:3000/api/v1/sessions/", {
+        method: "DELETE",
+        headers: {
+          Cookie: `session_id=${sessionObject.token}`,
+        },
+      })
+
+      expect(response.status).toBe(401)
+
+      const responseBody = await response.json()
+
+      expect(responseBody).toEqual({
+        name: "UnauthorizedError",
+        message: "Usuário não possui sessão ativa.",
+        action: "Verifique se este usuário está logado e tente novamente.",
+        status_code: 401,
+      })
+    })
+
+    test("With valid session", async () => {
+      const createdUser = await orcherstrator.createUser()
+
+      const sessionObject = await orcherstrator.createSession(createdUser.id)
+
+      const response = await fetch("http://localhost:3000/api/v1/sessions/", {
+        method: "DELETE",
+        headers: {
+          Cookie: `session_id=${sessionObject.token}`,
+        },
+      })
+
+      expect(response.status).toBe(200)
+
+      const responseBody = await response.json()
+
+      console.log(responseBody.expires_at, sessionObject.expires_at)
+      expect(responseBody).toEqual({
+        id: sessionObject.id,
+        token: sessionObject.token,
+        user_id: sessionObject.user_id,
+        expires_at: responseBody.expires_at,
+        created_at: responseBody.created_at,
+        updated_at: responseBody.updated_at,
+      })
+
+      expect(uuidVersion(responseBody.id)).toBe(4)
+      expect(Date.parse(responseBody.expires_at)).not.toBeNaN()
+      expect(Date.parse(responseBody.created_at)).not.toBeNaN()
+      expect(Date.parse(responseBody.updated_at)).not.toBeNaN()
+
+      expect(
+        responseBody.expires_at < sessionObject.expires_at.toISOString(),
+      ).toBe(true)
+      expect(
+        responseBody.updated_at > sessionObject.updated_at.toISOString(),
+      ).toBe(true)
+
+      // Set-Cookie assertions
+      const setCookie = response.headers.get("set-cookie")
+
+      expect(setCookie).toContain("session_id=")
+      expect(setCookie).toContain("Max-Age=-1")
+      expect(setCookie).toContain("Path=/")
+      expect(setCookie).toContain("HttpOnly")
+
+      const parsed = cookie.parse(setCookie)
+      expect(parsed.session_id).toBe("invalid")
+
+      // Double check assertions
+      const doubleCheckResponse = await fetch(
+        "http://localhost:3000/api/v1/user/",
+        {
+          headers: {
+            Cookie: `session_id=${sessionObject.token}`,
+          },
+        },
+      )
+
+      expect(doubleCheckResponse.status).toBe(401)
+
+      const doubleCheckResponseBody = await doubleCheckResponse.json()
+
+      expect(doubleCheckResponseBody).toEqual({
+        name: "UnauthorizedError",
+        message: "Usuário não possui sessão ativa.",
+        action: "Verifique se este usuário está logado e tente novamente.",
+        status_code: 401,
+      })
+    })
+  })
+})

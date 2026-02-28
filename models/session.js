@@ -52,7 +52,7 @@ async function create(userId) {
           ($1, $2, $3)
         RETURNING
           *
-      ;`,
+        ;`,
       values: [token, userId, expiresAt],
     })
 
@@ -78,9 +78,33 @@ async function renew(sessionId) {
           id = $1
         RETURNING
           *
-      ;`,
+        ;`,
       values: [sessionId, expiresAt],
     })
+    return results.rows[0]
+  }
+}
+
+async function expireById(sessionId) {
+  const expiredSessionObject = await runUpdateQuery(sessionId)
+  return expiredSessionObject
+
+  async function runUpdateQuery(sessionId) {
+    const results = await database.query({
+      text: `
+        UPDATE
+          sessions
+        SET
+          expires_at = expires_at - interval '1 year',
+          updated_at = NOW()
+        WHERE 
+          id = $1
+        RETURNING
+          *
+        ;`,
+      values: [sessionId],
+    })
+
     return results.rows[0]
   }
 }
@@ -89,6 +113,7 @@ const session = {
   findOneValidByToken,
   create,
   renew,
+  expireById,
   EXPIRATION_IN_MILLISECONDS,
 }
 
