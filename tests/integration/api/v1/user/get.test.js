@@ -1,0 +1,161 @@
+import { version as uuidVersion } from "uuid"
+import * as cookie from "cookie"
+import orcherstrator from "tests/orcherstrator"
+import session from "models/session"
+
+beforeAll(async () => {
+  await orcherstrator.waitForAllServices()
+  await orcherstrator.clearDatabase()
+  await orcherstrator.runPendingMigrations()
+})
+
+describe("GET /api/v1/user", () => {
+  describe("Default user", () => {
+    test("With valid session", async () => {
+      const createdUser = await orcherstrator.createUser({
+        username: "UserWithValidSession",
+      })
+
+      const sessionObject = await orcherstrator.createSession(createdUser.id)
+
+      const response = await fetch("http://localhost:3000/api/v1/user/", {
+        headers: {
+          Cookie: `session_id=${sessionObject.token}`,
+        },
+      })
+
+      expect(response.status).toBe(200)
+
+      const cacheControl = response.headers.get("cache-control")
+      expect(cacheControl).toBe(
+        "no-store, no-cache, max-age=0, must-revalidate",
+      )
+
+      const responseBody = await response.json()
+
+      expect(responseBody).toEqual({
+        id: createdUser.id,
+        username: "UserWithValidSession",
+        email: createdUser.email,
+        password: createdUser.password,
+        created_at: createdUser.created_at.toISOString(),
+        updated_at: createdUser.updated_at.toISOString(),
+      })
+
+      expect(uuidVersion(responseBody.id)).toBe(4)
+      expect(Date.parse(responseBody.created_at)).not.toBeNaN()
+      expect(Date.parse(responseBody.updated_at)).not.toBeNaN()
+
+      // Session renewal assertions
+      const renewedSessionObject = await session.findOneValidByToken(
+        sessionObject.token,
+      )
+
+      expect(renewedSessionObject.expires_at > sessionObject.expires_at).toBe(
+        true,
+      )
+      expect(renewedSessionObject.updated_at > sessionObject.updated_at).toBe(
+        true,
+      )
+
+      // Set-Cookie assertions
+      const setCookie = response.headers.get("set-cookie")
+
+      expect(setCookie).toContain("session_id=")
+      expect(setCookie).toContain(
+        `Max-Age=${session.EXPIRATION_IN_MILLISECONDS / 1000}`,
+      )
+      expect(setCookie).toContain("Path=/")
+      expect(setCookie).toContain("HttpOnly")
+
+      const parsed = cookie.parse(setCookie)
+      expect(parsed.session_id).toBe(sessionObject.token)
+    })
+
+    test("With almost expired session", async () => {
+      jest.useFakeTimers({
+        now: new Date(Date.now() - session.EXPIRATION_IN_MILLISECONDS + 1000),
+      })
+
+      const createdUser = await orcherstrator.createUser({
+        username: "UserWithAlmostExpiredSession",
+      })
+
+      const sessionObject = await orcherstrator.createSession(createdUser.id)
+
+      jest.useRealTimers()
+
+      const response = await fetch("http://localhost:3000/api/v1/user/", {
+        headers: {
+          Cookie: `session_id=${sessionObject.token}`,
+        },
+      })
+
+      expect(response.status).toBe(200)
+
+      const responseBody = await response.json()
+
+      expect(responseBody).toEqual({
+        id: createdUser.id,
+        username: "UserWithAlmostExpiredSession",
+        email: createdUser.email,
+        password: createdUser.password,
+        created_at: createdUser.created_at.toISOString(),
+        updated_at: createdUser.updated_at.toISOString(),
+      })
+    })
+
+    test("With nonexistent session", async () => {
+      const nonExistentToken =
+        "34399ffacfd0f8f7747ec641b19bfcc3c90c183f37264f8904f2461a3e0bf83e82bd33d767de3d669ed2c2d560a9029c"
+
+      const response = await fetch("http://localhost:3000/api/v1/user/", {
+        headers: {
+          Cookie: `session_id=${nonExistentToken}`,
+        },
+      })
+
+      expect(response.status).toBe(401)
+
+      const responseBody = await response.json()
+
+      expect(responseBody).toEqual({
+        name: "UnauthorizedError",
+        message: "Usuário não possui sessão ativa.",
+        action: "Verifique se este usuário está logado e tente novamente.",
+        status_code: 401,
+      })
+    })
+
+    test("with expired session", async () => {
+      jest.useFakeTimers({
+        now: new Date(Date.now() - session.EXPIRATION_IN_MILLISECONDS),
+      })
+
+      const createdUser = await orcherstrator.createUser({
+        username: "UserWithExpiredSession",
+      })
+
+      const sessionObject = await orcherstrator.createSession(createdUser.id)
+
+      jest.useRealTimers()
+
+      const response = await fetch("http://localhost:3000/api/v1/user/", {
+        headers: {
+          Cookie: `session_id=${sessionObject.token}`,
+        },
+      })
+
+      expect(response.status).toBe(401)
+
+      const responseBody = await response.json()
+
+      expect(responseBody).toEqual({
+        name: "UnauthorizedError",
+        message: "Usuário não possui sessão ativa.",
+        action: "Verifique se este usuário está logado e tente novamente.",
+        status_code: 401,
+      })
+    })
+  })
+})
