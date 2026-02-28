@@ -1,12 +1,12 @@
 import { version as uuidVersion } from "uuid"
-import orcherstrator from "tests/orcherstrator"
+import orchestrator from "tests/orchestrator"
 import user from "models/user"
 import password from "models/password"
 
 beforeAll(async () => {
-  await orcherstrator.waitForAllServices()
-  await orcherstrator.clearDatabase()
-  await orcherstrator.runPendingMigrations()
+  await orchestrator.waitForAllServices()
+  await orchestrator.clearDatabase()
+  await orchestrator.runPendingMigrations()
 })
 
 describe("POST /api/v1/users", () => {

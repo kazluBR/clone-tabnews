@@ -1,22 +1,22 @@
 import { version as uuidVersion } from "uuid"
 import * as cookie from "cookie"
-import orcherstrator from "tests/orcherstrator"
+import orchestrator from "tests/orchestrator"
 import session from "models/session"
 
 beforeAll(async () => {
-  await orcherstrator.waitForAllServices()
-  await orcherstrator.clearDatabase()
-  await orcherstrator.runPendingMigrations()
+  await orchestrator.waitForAllServices()
+  await orchestrator.clearDatabase()
+  await orchestrator.runPendingMigrations()
 })
 
 describe("GET /api/v1/user", () => {
   describe("Default user", () => {
     test("With valid session", async () => {
-      const createdUser = await orcherstrator.createUser({
+      const createdUser = await orchestrator.createUser({
         username: "UserWithValidSession",
       })
 
-      const sessionObject = await orcherstrator.createSession(createdUser.id)
+      const sessionObject = await orchestrator.createSession(createdUser.id)
 
       const response = await fetch("http://localhost:3000/api/v1/user/", {
         headers: {
@@ -77,11 +77,11 @@ describe("GET /api/v1/user", () => {
         now: new Date(Date.now() - session.EXPIRATION_IN_MILLISECONDS + 1000),
       })
 
-      const createdUser = await orcherstrator.createUser({
+      const createdUser = await orchestrator.createUser({
         username: "UserWithAlmostExpiredSession",
       })
 
-      const sessionObject = await orcherstrator.createSession(createdUser.id)
+      const sessionObject = await orchestrator.createSession(createdUser.id)
 
       jest.useRealTimers()
 
@@ -143,11 +143,11 @@ describe("GET /api/v1/user", () => {
         now: new Date(Date.now() - session.EXPIRATION_IN_MILLISECONDS),
       })
 
-      const createdUser = await orcherstrator.createUser({
+      const createdUser = await orchestrator.createUser({
         username: "UserWithExpiredSession",
       })
 
-      const sessionObject = await orcherstrator.createSession(createdUser.id)
+      const sessionObject = await orchestrator.createSession(createdUser.id)
 
       jest.useRealTimers()
 

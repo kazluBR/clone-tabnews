@@ -1,5 +1,5 @@
 import email from "infra/email"
-import orchestrator from "tests/orcherstrator"
+import orchestrator from "tests/orchestrator"
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices()
