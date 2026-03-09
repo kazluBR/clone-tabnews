@@ -93,7 +93,7 @@ function extractUUID(text) {
 }
 
 async function activateUser(userId) {
-  await activation.activeUserByUserId(userId)
+  return await activation.activeUserByUserId(userId)
 }
 
 const orchestrator = {
