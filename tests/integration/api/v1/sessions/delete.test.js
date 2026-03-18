@@ -80,7 +80,6 @@ describe("DELETE /api/v1/sessions", () => {
 
       const responseBody = await response.json()
 
-      console.log(responseBody.expires_at, sessionObject.expires_at)
       expect(responseBody).toEqual({
         id: sessionObject.id,
         token: sessionObject.token,
