@@ -86,6 +86,7 @@ describe("GET /api/v1/user", () => {
       )
       expect(setCookie).toContain("Path=/")
       expect(setCookie).toContain("HttpOnly")
+      expect(setCookie).toContain("SameSite=Lax")
 
       const parsed = cookie.parse(setCookie)
       expect(parsed.session_id).toBe(sessionObject.token)

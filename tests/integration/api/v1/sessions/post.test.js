@@ -147,6 +147,7 @@ describe("POST /api/v1/sessions", () => {
       )
       expect(setCookie).toContain("Path=/")
       expect(setCookie).toContain("HttpOnly")
+      expect(setCookie).toContain("SameSite=Lax")
 
       const parsed = cookie.parse(setCookie)
       expect(parsed.session_id).toBe(responseBody.token)
