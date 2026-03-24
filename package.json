@@ -30,7 +30,7 @@
     "cookie": "1.1.1",
     "next": "16.1.4",
     "next-connect": "1.0.0",
-    "node-pg-migrate": "6.2.2",
+    "node-pg-migrate": "7.6.1",
     "nodemailer": "8.0.3",
     "pg": "8.20.0",
     "react": "19.2.3",
