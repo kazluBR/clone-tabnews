@@ -1,4 +1,5 @@
 import orchestrator from "tests/orchestrator"
+import webserver from "infra/webserver"
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices()
@@ -11,7 +12,7 @@ describe("ANY /api/v1/status", () => {
     test.each(notAllowedMethods)(
       "Returning 405 for %s method",
       async (method) => {
-        const response = await fetch("http://localhost:3000/api/v1/status", {
+        const response = await fetch(`${webserver.origin}/api/v1/status`, {
           method,
         })
 
