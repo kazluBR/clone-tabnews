@@ -60,8 +60,8 @@ async function createUser(userObject) {
   })
 }
 
-async function createSession(userId) {
-  return await session.create(userId)
+async function createSession(userObject) {
+  return await session.create(userObject.id)
 }
 
 async function deleteAllEmails() {
@@ -93,8 +93,8 @@ function extractUUID(text) {
   return match ? match[0] : null
 }
 
-async function activateUser(userId) {
-  return await activation.activeUserByUserId(userId)
+async function activateUser(userObject) {
+  return await activation.activeUserByUserId(userObject.id)
 }
 
 async function addFeaturesToUser(userObject, features) {

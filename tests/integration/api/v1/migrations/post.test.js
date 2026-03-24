@@ -30,8 +30,8 @@ describe("POST /api/v1/migrations", () => {
   describe("Default user", () => {
     test("Running pending migrations", async () => {
       const createdUser = await orchestrator.createUser()
-      await orchestrator.activateUser(createdUser.id)
-      const sessionObject = await orchestrator.createSession(createdUser.id)
+      await orchestrator.activateUser(createdUser)
+      const sessionObject = await orchestrator.createSession(createdUser)
 
       const response = await fetch(`${webserver.origin}/api/v1/migrations`, {
         method: "POST",
@@ -56,9 +56,9 @@ describe("POST /api/v1/migrations", () => {
   describe("Privileged user", () => {
     test("With `create:migration`", async () => {
       const privilegedUser = await orchestrator.createUser()
-      await orchestrator.activateUser(privilegedUser.id)
+      await orchestrator.activateUser(privilegedUser)
       await orchestrator.addFeaturesToUser(privilegedUser, ["create:migration"])
-      const sessionObject = await orchestrator.createSession(privilegedUser.id)
+      const sessionObject = await orchestrator.createSession(privilegedUser)
 
       const response = await fetch(`${webserver.origin}/api/v1/migrations`, {
         method: "POST",
