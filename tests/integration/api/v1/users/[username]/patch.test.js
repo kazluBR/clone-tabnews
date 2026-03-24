@@ -11,7 +11,7 @@ beforeAll(async () => {
 
 describe("Patch /api/v1/users/[username]", () => {
   describe("Anonymous user", () => {
-    test("With unique 'username'", async () => {
+    test("With unique `username`", async () => {
       const createdUser = await orchestrator.createUser()
 
       const response = await fetch(
@@ -41,7 +41,7 @@ describe("Patch /api/v1/users/[username]", () => {
   })
 
   describe("Default user", () => {
-    test("With nonexistent 'username'", async () => {
+    test("With nonexistent `username`", async () => {
       const createdUser = await orchestrator.createUser()
       await orchestrator.activateUser(createdUser.id)
 
@@ -70,7 +70,7 @@ describe("Patch /api/v1/users/[username]", () => {
       })
     })
 
-    test("With duplicated 'username'", async () => {
+    test("With duplicated `username`", async () => {
       await orchestrator.createUser({
         username: "user1",
       })
@@ -105,7 +105,7 @@ describe("Patch /api/v1/users/[username]", () => {
       })
     })
 
-    test("With duplicated 'email'", async () => {
+    test("With duplicated `email`", async () => {
       await orchestrator.createUser({
         email: "email1@curso.dev",
       })
@@ -143,7 +143,7 @@ describe("Patch /api/v1/users/[username]", () => {
       })
     })
 
-    test("With new 'password'", async () => {
+    test("With new `password`", async () => {
       const createdUser = await orchestrator.createUser({
         password: "newPassword1",
       })
@@ -198,7 +198,7 @@ describe("Patch /api/v1/users/[username]", () => {
       expect(incorrectPasswordMatch).toBe(false)
     })
 
-    test("With unique 'username'", async () => {
+    test("With unique `username`", async () => {
       const createdUser = await orchestrator.createUser()
 
       await orchestrator.activateUser(createdUser.id)
@@ -231,7 +231,7 @@ describe("Patch /api/v1/users/[username]", () => {
       })
     })
 
-    test("With unique 'email'", async () => {
+    test("With unique `email`", async () => {
       const createdUser = await orchestrator.createUser()
 
       await orchestrator.activateUser(createdUser.id)
