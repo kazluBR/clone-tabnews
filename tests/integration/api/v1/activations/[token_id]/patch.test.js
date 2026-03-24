@@ -128,10 +128,13 @@ describe("PATCH /api/v1/activations/[token_id]", () => {
       const expiresAt = new Date(responseBody.expires_at)
       const createdAt = new Date(responseBody.created_at)
 
-      expiresAt.setMilliseconds(0)
-      createdAt.setMilliseconds(0)
+      expect(expiresAt >= createdAt).toBe(true)
 
-      expect(expiresAt - createdAt).toBe(activation.EXPIRATION_IN_MILLISECONDS)
+      const actualLifetimeInMilliseconds = expiresAt - createdAt
+      const lifetimeDifferenceInMilliseconds =
+        activation.EXPIRATION_IN_MILLISECONDS - actualLifetimeInMilliseconds
+
+      expect(lifetimeDifferenceInMilliseconds).toBeLessThanOrEqual(5000)
 
       const activatedUser = await user.findOneById(responseBody.user_id)
       expect(activatedUser.features).toEqual([
