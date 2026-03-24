@@ -263,6 +263,9 @@ describe("Patch /api/v1/users/[username]", () => {
         created_at: responseBody.created_at,
         updated_at: responseBody.updated_at,
       })
+
+      const userInDatabase = await user.findOneByUsername(createdUser.username)
+      expect(userInDatabase.email).toBe("uniqueEmail2@curso.dev")
     })
 
     test("With `userB` targeting `userA`", async () => {
