@@ -67,14 +67,14 @@ async function sendEmailToUser(user, activationToken) {
   console.log("Enviando email de ativação para o usuário:", user.email)
   console.log("Token de ativação:", activationToken)
   await email.send({
-    from: "KazluNews <contato@kazlunews.com.br>",
+    from: "TabNews <contato+tabnews@kazlu.dev.br>",
     to: user.email,
-    subject: "Ative seu cadastro no KazluNews",
+    subject: "Ative seu cadastro no TabNews",
     text: [
-      `${user.username}, clique no link abaixo para ativar seu cadastro no KazluNews:\n`,
+      `${user.username}, clique no link abaixo para ativar seu cadastro no TabNews:\n`,
       `${webserver.origin}/cadastro/ativar/${activationToken.id}\n`,
       "Atenciosamente",
-      "Equipe KazluNews",
+      "Equipe TabNews",
     ].join("\n"),
   })
 }
