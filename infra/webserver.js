@@ -7,7 +7,7 @@ function getOrigin() {
     return `https://${process.env.VERCEL_URL}`
   }
 
-  return "https://kazlunews.com.br"
+  return "https://tabnews.kazlu.dev.br"
 }
 
 const webserver = {
