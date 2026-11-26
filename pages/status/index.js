@@ -1,4 +1,7 @@
 import useSWR from "swr"
+import DefaultLayout from "interface/DefaultLayout"
+import { Banner, Heading, Stack } from "@primer/react"
+import { Card } from "@primer/react/experimental"
 
 async function fetchAPI(key) {
   const response = await fetch(key)
@@ -8,11 +11,13 @@ async function fetchAPI(key) {
 
 export default function StatusPage() {
   return (
-    <>
-      <h1>Status</h1>
-      <UpdatedAt />
-      <DatabaseStatus />
-    </>
+    <DefaultLayout contentWidth="medium" metadata={{ title: "Status" }}>
+      <Stack gap="spacious">
+        <Heading as="h1">Status</Heading>
+        <DatabaseStatus />
+        <UpdatedAt />
+      </Stack>
+    </DefaultLayout>
   )
 }
 
@@ -27,7 +32,11 @@ function UpdatedAt() {
     updated_at = new Date(data.updated_at).toLocaleString("pt-BR")
   }
 
-  return <div>Última atualização: {updated_at}</div>
+  return (
+    <Banner variant="info" layout="compact">
+      <Banner.Title>Última atualização: {updated_at}</Banner.Title>
+    </Banner>
+  )
 }
 
 function DatabaseStatus() {
@@ -35,44 +44,43 @@ function DatabaseStatus() {
     refreshInterval: 2000,
   })
 
-  let databaseStatusInformation = "Carregando..."
-
-  if (!isLoading || data) {
-    const dbData = data.dependencies.database
-    const availableConnections =
-      dbData.max_connections - dbData.opened_connections
-
-    const greenCircleStyle = {
-      padding: "0 8px",
-      borderRadius: "100px",
-      border: "2px solid #16a34a",
-      color: "#16a34a",
-    }
-
-    databaseStatusInformation = (
-      <div>
-        <div>
-          Conexões disponíveis:{" "}
-          <span style={greenCircleStyle}>{availableConnections}</span>
-        </div>
-
-        <div>
-          Conexões abertas:{" "}
-          <span style={greenCircleStyle}>{dbData.opened_connections}</span>
-        </div>
-
-        <div>
-          Versão do PostgreSQL:{" "}
-          <span style={greenCircleStyle}>{dbData.version}</span>
-        </div>
-      </div>
-    )
+  if (isLoading || !data) {
+    return
   }
 
+  const database = data.dependencies.database
+  const openedConnections = database.opened_connections
+  const maxConnections = database.max_connections
+  const version = database.version ?? "-"
+
   return (
-    <>
-      <h2>Database</h2>
-      <div>{databaseStatusInformation}</div>
-    </>
+    <Stack>
+      <Heading as="h2" variant="medium">
+        Database
+      </Heading>
+      <Stack direction={{ narrow: "vertical", regular: "horizontal" }}>
+        <Stack.Item grow>
+          <Card>
+            <Card.Heading>Conexões abertas</Card.Heading>
+            <Card.Description>{openedConnections}</Card.Description>
+            <Card.Metadata>Uso neste instante</Card.Metadata>
+          </Card>
+        </Stack.Item>
+        <Stack.Item grow>
+          <Card>
+            <Card.Heading>Conexões máximas</Card.Heading>
+            <Card.Description>{maxConnections}</Card.Description>
+            <Card.Metadata>Conexões disponíveis</Card.Metadata>
+          </Card>
+        </Stack.Item>
+        <Stack.Item grow>
+          <Card>
+            <Card.Heading>PostgreSQL</Card.Heading>
+            <Card.Description>{version}</Card.Description>
+            <Card.Metadata>Versão em execução</Card.Metadata>
+          </Card>
+        </Stack.Item>
+      </Stack>
+    </Stack>
   )
 }
